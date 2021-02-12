@@ -75,7 +75,7 @@ namespace BotServer
     class Bot
     {
         private DiscordSocketClient _client;
-        private string _token = "ODAyMTY0NjY0NTI4MTQyMzY2.YArQDw.vCSohK32q4H0avajnvByuIXLAes";
+        private string _token;
         // Keep the CommandService and DI container around for use with commands.
         // These two types require you install the Discord.Net.Commands package.
         private readonly CommandService _commands;
@@ -93,6 +93,9 @@ namespace BotServer
 
         public Bot(DiscordDataService t)
         {
+            //Get Token from disk
+            _token = System.IO.File.ReadAllText("token.txt");
+
             //Bind Data
             _dataService = t;
             
@@ -126,6 +129,9 @@ namespace BotServer
                                                 BuildServiceProvider();
             //Init Requests List
             _requests = new Queue<BotRequest>();
+
+
+
 
         }
 
