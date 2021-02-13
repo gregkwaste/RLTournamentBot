@@ -6,12 +6,12 @@
         xmlns:local="clr-namespace:Client"
         xmlns:tournbackend="clr-namespace:TournamentBackend;assembly=TournamentBackend"
         mc:Ignorable="d"
-        Title="Tournament Client" Height="450" Width="800">
+        Title="RLTournamentBot Client" Height="450" Width="800">
 
 
     <Window.Resources>
         <ResourceDictionary>
-
+            <local:MatchupToColorConverter x:Key="matchupColorConverter"/>
             <DataTemplate DataType="{x:Type tournbackend:Player}">
                 <DockPanel>
                     <Image Source="{Binding Rank.ImagePath}" Width="30" Height="30"/>
@@ -20,7 +20,7 @@
             </DataTemplate>
             
             <DataTemplate x:Key="MatchupTemplate" DataType="{x:Type tournbackend:Matchup}">
-                <DockPanel IsEnabled="{Binding IsValid}" Background="{Binding Color}">
+                <DockPanel IsEnabled="{Binding IsValid}" Background="{Binding Path=IsValid, Converter={StaticResource matchupColorConverter}}">
                     <TextBlock Text="Round: "  VerticalAlignment="Center" HorizontalAlignment="Left"/>
                     <TextBlock Text="{Binding RoundID}"  VerticalAlignment="Center" HorizontalAlignment="Left"/>
                     <TextBlock Text=" | Team: "  VerticalAlignment="Center" HorizontalAlignment="Left"/>
@@ -108,8 +108,14 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="100"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="20"/>
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50*"/>
+                        <ColumnDefinition Width="50*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0" Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"/>
                             <RowDefinition Height="30"/>
@@ -122,7 +128,7 @@
 
                         <TextBlock Grid.Row="0" Grid.Column="0" FontSize="18" Text="Guild Name" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" FontSize="18" Text="{Binding Name}" VerticalAlignment="Center"/>
-                        
+
                         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="18" Text="Guild Discord ID" VerticalAlignment="Center"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" FontSize="18" Text="{Binding DiscordID}" VerticalAlignment="Center"/>
 
@@ -130,7 +136,8 @@
                         <TextBlock Grid.Row="2" Grid.Column="1" FontSize="18" Text="{Binding ActiveTournamentID}" VerticalAlignment="Center"/>
 
                     </Grid>
-                    <GroupBox Header="Guild Tournaments" Grid.Row="1">
+
+                    <GroupBox Header="Guild Tournaments" Grid.Row="1" Grid.Column="0">
                         <ListView ItemsSource="{Binding Tournaments}">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
@@ -141,126 +148,134 @@
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Width="20" Header="ID" DisplayMemberBinding="{Binding UID}"/>
-                                    <GridViewColumn Width="200" Header="Name" DisplayMemberBinding="{Binding Name}"/>
-                                    <GridViewColumn Width="200" Header="RegistrationEnabled" DisplayMemberBinding="{Binding RegistrationsEnabled}"/>
-                                    <GridViewColumn Width="200" Header="IsStarted" DisplayMemberBinding="{Binding IsStarted}"/>
-                                    <GridViewColumn Width="200" Header="Finished" DisplayMemberBinding="{Binding IsFinished}"/>
+                                    <GridViewColumn Width="100" Header="Name" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Width="100" Header="RegistrationOpen" DisplayMemberBinding="{Binding RegistrationsEnabled}"/>
+                                    <GridViewColumn Width="100" Header="IsStarted" DisplayMemberBinding="{Binding IsStarted}"/>
+                                    <GridViewColumn Width="100" Header="Finished" DisplayMemberBinding="{Binding IsFinished}"/>
                                 </GridView>
                             </ListView.View>
                         </ListView>
                     </GroupBox>
+                    <GroupBox Header="Guild Settings" Grid.Row="1" Grid.Column="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="30"/>
+                            </Grid.RowDefinitions>
+                            <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                <TextBox x:Name="GuildSettingsBox" Text="{Binding SettingsJsonBeautiful, Mode=TwoWay, UpdateSourceTrigger=Explicit}" AcceptsTab="True" AcceptsReturn="True" />
+                            </ScrollViewer>
+                            <Button Grid.Row="1" Click="SaveGuildSettings">Save Settings</Button>
+                        </Grid>
+                    </GroupBox>
+                    <Button Click="Button_Click" Grid.Row="2" Grid.ColumnSpan="2">Update Guild Info</Button>
                 </Grid>
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type tournbackend:Tournament}">
-                <TabControl>
-                    <TabItem Header="Players">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="60"/>
-                            </Grid.RowDefinitions>
-                            <GroupBox Header="Players">
-                                <ListView Grid.Row="0" ItemsSource="{Binding Players}">
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="Height" Value="30" />
-                                            <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                    <ListView.ContextMenu>
-                                        <ContextMenu>
-                                            <!--MenuItem Header="Remove" Click="RemovePlayer"/-->
-                                        </ContextMenu>
-                                    </ListView.ContextMenu>
-                                    <ListView.View>
-                                        <GridView>
-                                            <GridViewColumn Width="40" Header="UID" DisplayMemberBinding="{Binding UID}"/>
-                                            <GridViewColumn Width="200" Header="Name" DisplayMemberBinding="{Binding Name}"/>
-                                            <GridViewColumn Width="200" Header="Rank">
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <DockPanel>
-                                                            <Image Source="{Binding Rank.ImagePath}" Width="30" Height="30"/>
-                                                            <TextBlock Text="{Binding Rank.Name}" VerticalAlignment="Center"/>
-                                                        </DockPanel>
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
-                                        </GridView>
-                                    </ListView.View>
-                                </ListView>
-                            </GroupBox>
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50*"/>
-                                    <ColumnDefinition Width="50*"/>
-                                    <ColumnDefinition Width="50*"/>
-                                    <ColumnDefinition Width="50*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="50*"/>
-                                    <RowDefinition Height="50*"/>
-                                </Grid.RowDefinitions>
-                                <!--Button Grid.Column="0" Grid.Row="0" Height="30" Click="AddPLayerEvent">Add Player</-->
-                                <!--Button Grid.Column="1" Grid.Row="0" Height="30" Click="ClearPlayersEvent">Clear Players</Button-->
-                                <!--Button Grid.Column="2" Grid.Row="0" Height="30" Click="ImportPlayersEvent">Import Players from CSV</Button-->
-                                <!--Button Grid.Column="3" Grid.Row="0" Height="30" Click="Refresh">Refresh</Button-->
-                                <!--Button Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Height="30" Click="CreateTeams">Create Teams</Button-->
-                            </Grid>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="Teams">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="80*"/>
-                                <RowDefinition Height="40"/>
-                            </Grid.RowDefinitions>
-                            <GroupBox Header="Team List">
-                                <ListView Grid.Row="0" ItemsSource="{Binding Teams}">
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="Height" Value="60" />
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                </ListView>
-                            </GroupBox>
-                        </Grid>
-                    </TabItem>
-                    
-                    <TabItem Header="Bracket">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="30*"/>
-                                <ColumnDefinition Width="70*"/>
-                            </Grid.ColumnDefinitions>
-                            <GroupBox Header="Matchups" Grid.Column="0">
-                                <ListView Grid.Column="0" ItemsSource="{Binding bracket.Matchups}" ItemTemplate="{StaticResource MatchupTemplate}">
-    
-                                </ListView>
-                            </GroupBox>
-                            <GroupBox Header="Bracket View" Grid.Column="1">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="30"/>
-                                    </Grid.RowDefinitions>
-                                    <Image x:Name="BracketImage" Width="Auto" Height="Auto"/>
-                                    <DockPanel Grid.Row="1">
-                                        <Button Click="ExportBracket">Export Bracket</Button>
-                                        <!--Button Click="ClearImage">Clear Image</-->
-                                    </DockPanel>
-                                    
-                                </Grid>
-                            </GroupBox>
-
-
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    <TabControl Grid.Row="0">
+                        <TabItem Header="Players">
                             <Grid>
-                                        
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <!--RowDefinition Height="60"/-->
+                                </Grid.RowDefinitions>
+                                <GroupBox Header="Players">
+                                    <ListView Grid.Row="0" ItemsSource="{Binding Players}">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="Height" Value="30" />
+                                                <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_MouseDoubleClick"/>
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                        <ListView.ContextMenu>
+                                            <ContextMenu>
+                                                <!--MenuItem Header="Remove" Click="RemovePlayer"/-->
+                                            </ContextMenu>
+                                        </ListView.ContextMenu>
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridViewColumn Width="40" Header="UID" DisplayMemberBinding="{Binding UID}"/>
+                                                <GridViewColumn Width="200" Header="Name" DisplayMemberBinding="{Binding Name}"/>
+                                                <GridViewColumn Width="200" Header="Rank">
+                                                    <GridViewColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <DockPanel>
+                                                                <Image Source="{Binding Rank.ImagePath}" Width="30" Height="30"/>
+                                                                <TextBlock Text="{Binding Rank.Name}" VerticalAlignment="Center"/>
+                                                            </DockPanel>
+                                                        </DataTemplate>
+                                                    </GridViewColumn.CellTemplate>
+                                                </GridViewColumn>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </GroupBox>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50*"/>
+                                        <ColumnDefinition Width="50*"/>
+                                        <ColumnDefinition Width="50*"/>
+                                        <ColumnDefinition Width="50*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50*"/>
+                                        <RowDefinition Height="50*"/>
+                                    </Grid.RowDefinitions>
+                                    <!--Button Grid.Column="0" Grid.Row="0" Height="30" Click="AddPLayerEvent">Add Player</-->
+                                    <!--Button Grid.Column="1" Grid.Row="0" Height="30" Click="ClearPlayersEvent">Clear Players</Button-->
+                                    <!--Button Grid.Column="2" Grid.Row="0" Height="30" Click="ImportPlayersEvent">Import Players from CSV</Button-->
+                                    <!--Button Grid.Column="3" Grid.Row="0" Height="30" Click="Refresh">Refresh</Button-->
+                                    <!--Button Grid.Column="0" Grid.ColumnSpan="4" Grid.Row="1" Height="30" Click="CreateTeams">Create Teams</Button-->
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </TabItem>
-                </TabControl>
+                        </TabItem>
+                        <TabItem Header="Teams">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="80*"/>
+                                    <!--RowDefinition Height="40"/-->
+                                </Grid.RowDefinitions>
+                                <GroupBox Header="Team List">
+                                    <ListView Grid.Row="0" ItemsSource="{Binding Teams}">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="Height" Value="60" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+                                </GroupBox>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="Bracket">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30*"/>
+                                    <ColumnDefinition Width="70*"/>
+                                </Grid.ColumnDefinitions>
+                                <GroupBox Header="Matchups" Grid.Column="0">
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <ListView Grid.Column="0" ItemsSource="{Binding bracket.Matchups}" ItemTemplate="{StaticResource MatchupTemplate}"/>
+                                        </ScrollViewer>
+                                        <Button Grid.Column="0" Grid.Row="1" Click="ExportBracket">Export Bracket</Button>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="Bracket View" Grid.Column="1">
+                                    <Image x:Name="BracketImage" Width="Auto" Height="Auto"/>
+                                </GroupBox>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                    <Button Grid.Row="1" Height="30" Click="RefreshTournament">Refresh</Button>
+                </Grid>
+                
             </DataTemplate>
         </ResourceDictionary>
         
@@ -270,33 +285,25 @@
         <Grid.RowDefinitions>
             <RowDefinition Height ="20"/>
             <RowDefinition Height ="*"/>
-            <RowDefinition Height ="40"/>
-            <RowDefinition Height ="10"/>
+            <RowDefinition Height ="16"/>
         </Grid.RowDefinitions>
         
         <Menu Grid.Row="0" Height="20">
             <MenuItem Header="File">
+                <MenuItem Header="Connect" Click="ConnectToDB"/>
                 <MenuItem Header="Close"/>
             </MenuItem>
         </Menu>
 
-        <Grid Grid.Row="1">
-            <TabControl>
-                <TabItem Header="Guild Info">
-                    <ContentControl x:Name="GuildPresenter"/>
-                </TabItem>
-                <TabItem Header="Tournament">
-                    <ContentControl x:Name="TournamentPresenter"/>
-                </TabItem>
-            </TabControl>
-            
-        </Grid>
         
-        
-        <Grid Grid.Row="2">
-            <Button Click="Button_Click">Connect</Button>
-            
-        </Grid>
-        
+        <TabControl Grid.Row="1">
+            <TabItem Header="Guild Info">
+                <ContentControl x:Name="GuildPresenter"/>
+            </TabItem>
+            <TabItem Header="Tournament">
+                <ContentControl x:Name="TournamentPresenter"/>
+            </TabItem>
+        </TabControl>
+        <TextBlock Grid.Row="2" HorizontalAlignment="Right" TextAlignment="Right">Created by gregkwaste</TextBlock>
     </Grid>
 </Window>

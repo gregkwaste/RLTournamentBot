@@ -17,13 +17,6 @@ namespace BotServer.Modules
     {
         public CommandService _commands { get; set; }
         
-        [Command("test")]
-        public async Task Test()
-        {
-            var user = Context.User;
-            await ReplyAsync(Context.User.Mention + " eisai ilithios");
-        }
-        
         [Command("hi")]
         public async Task Hi()
         {

@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Client", "Client\Client.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TournamentBackend", "TournamentBackend\TournamentBackend.csproj", "{79CAAC5D-3C96-450D-B6E6-1380F800227A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientSimulator", "ClientSimulator\ClientSimulator.csproj", "{7065AC0E-4B78-42DB-A409-3AA5A013539B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{79CAAC5D-3C96-450D-B6E6-1380F800227A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79CAAC5D-3C96-450D-B6E6-1380F800227A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79CAAC5D-3C96-450D-B6E6-1380F800227A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7065AC0E-4B78-42DB-A409-3AA5A013539B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7065AC0E-4B78-42DB-A409-3AA5A013539B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7065AC0E-4B78-42DB-A409-3AA5A013539B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7065AC0E-4B78-42DB-A409-3AA5A013539B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

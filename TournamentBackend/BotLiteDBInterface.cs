@@ -25,7 +25,7 @@ namespace TournamentBackend
         public List<TournamentInfo> GetGuildTournaments(LiteDatabase db, long guild_uid)
         {
             var collection = db.GetCollection<TournamentInfo>("tournaments");
-            List<TournamentInfo> data = collection.Find(x => x.UID == guild_uid).ToList();
+            List<TournamentInfo> data = collection.Find(x => x.GuildID == guild_uid).ToList();
             return data;
         }
 

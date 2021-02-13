@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using MySqlConnector;
+using LiteDB;
 
 namespace TournamentBackend
 {
@@ -59,7 +56,11 @@ namespace TournamentBackend
     {
         //Server Stuff 
         public static BotLiteDBInterface dbInterface;
-        public static string dbConnectionString = "test.db";
+        public static ConnectionString dbConnectionString = new ConnectionString()
+        {
+            Filename = "test.db",
+            Connection = ConnectionType.Shared
+        };
         public static Dictionary<string, Rank> RankStringMap = new Dictionary<string, Rank>();
         public static Dictionary<RL_RANK, Rank> RankEnumMap = new Dictionary<RL_RANK, Rank>();
         public static List<string> RankNames = new List<string>();

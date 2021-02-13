@@ -40,7 +40,25 @@ namespace TournamentBackend
             }
             
         }
+
+        [BsonIgnore]
+        public string SettingsJsonBeautiful
+        {
+
+            get
+            {
+                if (settings == null)
+                    return "";
+                else
+                    return JsonConvert.SerializeObject(settings, Formatting.Indented);
+            }
+            set
+            {
+                settings = JsonConvert.DeserializeObject<Settings>(value);
+            }
         
+        }
+
         public Settings settings = null;
     }
 }

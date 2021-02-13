@@ -18,7 +18,8 @@ namespace TournamentBackend
         {
             get
             {
-                return new ObservableCollection<Matchup>(_matchups);
+                List<Matchup> sortedMatchups = _matchups.OrderBy(x => x.RoundID).ToList();
+                return new ObservableCollection<Matchup>(sortedMatchups);
             }
         }
         
@@ -57,7 +58,7 @@ namespace TournamentBackend
             {
                 Round r = Rounds[r_i];
                 Console.WriteLine("Round {0} Matches: ", r.ID);
-
+                
                 //Calculate matchup gap
                 int round_x_offset = r_i * (matchup_width + round_gap);
 
@@ -74,8 +75,10 @@ namespace TournamentBackend
                     rec.Y = round_y_offset;
                     rec.Width = matchup_width;
                     rec.Height = matchup_height;
-
-
+                    rec.Stroke = blackPainter;
+                    rec.StrokeWidth = 2;
+                    
+                    
                     if (!m.IsFinished)
                         rec.Fill = whitePainter;
                     else
@@ -158,7 +161,7 @@ namespace TournamentBackend
                     vl2.EndY = hl1.StartY + matchup_height / 2.0f;
                     doc.Children.Add(vl2);
 
-
+                    
                     //Team 2 Text
                     team_text = "TBD";
                     team_id = "";
@@ -171,7 +174,6 @@ namespace TournamentBackend
                             team_text = m.Team2.Name;
                             team_id = m.Team2.ID.ToString("00");
                         }
-                            
                     }
 
                     //Τeam ID

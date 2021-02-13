@@ -13,6 +13,7 @@ using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 using System.Windows.Controls;
 using System.Drawing;
+using System.Windows.Data;
 
 namespace Client
 {
@@ -27,6 +28,7 @@ namespace Client
         //Private props
         private Guild _g = null;
         private Tournament _t = null;
+        private long ActiveTournamentID = 0;
             
         private void SetRankImages()
         {
@@ -99,7 +101,7 @@ namespace Client
                         rank.ImagePath = "pack://application:,,,/Resources/Grand_champion3_rank_icon.png";
                         break;
                     case RL_RANK.SUPERSONIC_LEGEND:
-                        rank.ImagePath = "pack://application:,,,/Resources/SuperSonic_Legendrank_icon.png";
+                        rank.ImagePath = "pack://application:,,,/Resources/Supersonic_Legend_rank_icon.png";
                         break;
                     default:
                         rank.ImagePath = "";
@@ -120,19 +122,21 @@ namespace Client
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Request req = new Request();
-            req.type = RequestType.GET_GUILD;
-            req.args.Add(GuildID);
             
-            _g = cl.ExecuteClient(req) as Guild;
 
-            if (_g != null)
-            {
-                GuildPresenter.Content = _g;
-                Console.WriteLine("Guild Name: ", _g.Name);
-                Console.WriteLine("Guild ActiveTournament ID: ", _g.ActiveTournamentID);
-            }
+        }
 
+
+        private void RequestTournament(long tourn_uid)
+        {
+            //Send Request to server to fetch tournament data
+            Request req = new Request();
+            req.type = RequestType.GET_TOURNAMENT;
+            req.args.Add(tourn_uid);
+
+            _t = cl.ExecuteClient(req) as Tournament;
+
+            TournamentPresenter.Content = _t;
         }
 
         private void OpenTournament(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -142,14 +146,8 @@ namespace Client
             ListViewItem lv = sender as ListViewItem;
 
             TournamentInfo tInfo = lv.Content as TournamentInfo;
-
-            //Send Request to server to fetch tournament data
-            Request req = new Request();
-            req.type = RequestType.GET_TOURNAMENT;
-            req.args.Add(tInfo.UID);
-
-            _t = cl.ExecuteClient(req) as Tournament;
-            TournamentPresenter.Content = _t;
+            ActiveTournamentID = tInfo.UID;
+            RequestTournament(tInfo.UID);
         }
 
         private void ListViewItem_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -193,6 +191,67 @@ namespace Client
             }
         }
 
+        private void ConnectToDB(object sender, RoutedEventArgs e)
+        {
+            Request req = new Request();
+            req.type = RequestType.GET_GUILD;
+            req.args.Add(GuildID);
+
+            _g = cl.ExecuteClient(req) as Guild;
+
+            if (_g != null)
+            {
+                GuildPresenter.Content = _g;
+                Console.WriteLine("Guild Name: ", _g.Name);
+                Console.WriteLine("Guild ActiveTournament ID: ", _g.ActiveTournamentID);
+            }
+        }
+
+        private void RefreshTournament(object sender, RoutedEventArgs e)
+        {
+            if (ActiveTournamentID != 0)
+                RequestTournament(ActiveTournamentID);
+        }
+
+        private void SaveGuildSettings(object sender, RoutedEventArgs e)
+        {
+            Button _b = sender as Button;
+            
+            Grid g = _b.Parent as Grid;
+
+            TextBox tbox = g.FindName("GuildSettingsBox") as TextBox;
+            //Try to manually deserialize
+            try
+            {
+                JsonConvert.DeserializeObject<Settings>(tbox.Text);
+                BindingExpression be = tbox.GetBindingExpression(TextBox.TextProperty);
+                be.UpdateSource();
+            } catch
+            {
+                MessageBox.Show("Malformed Json");
+                return;
+            }
+            
+        }
+    }
+
+    public class MatchupToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is bool)
+            {
+                bool m = value != null ? true : false;
+                if (m)
+                    return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.LightGreen);
+            }
+            return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 255, 255));
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
@@ -207,6 +266,8 @@ namespace Client
                 // for the socket. This example  
                 // uses port 11111 on the local  
                 // computer. 
+                //string server_ip = "18.198.3.51";
+                //IPAddress ipAddr = IPAddress.Parse(server_ip);
                 IPHostEntry ipHost = Dns.GetHostEntry(Dns.GetHostName());
                 IPAddress ipAddr = ipHost.AddressList[0];
                 IPEndPoint localEndPoint = new IPEndPoint(ipAddr, 11111);
@@ -242,16 +303,22 @@ namespace Client
                     
                     int byteSent = sender.Send(reqData);
 
-                    //Allocate byte array to receive response
-                    byte[] messageReceived = new byte[1024 * 1024]; //Preallocate byffer to 1MB
-
-                    // We receive the messagge using  
-                    // the method Receive(). This  
-                    // method returns number of bytes 
-                    // received, that we'll use to  
-                    // convert them to string 
-                    int byteRecv = sender.Receive(messageReceived);
-
+                    MemoryStream ms;
+                    using (ms = new MemoryStream())
+                    {
+                        while (true)
+                        {
+                            byte[] buff = new byte[65535];
+                            int byteRecv = sender.Receive(buff);
+                            //Console.WriteLine("Received {0} bytes of the message", byteRecv);
+                            ms.Write(buff,0,byteRecv);
+                            if (byteRecv == 0)
+                                break;
+                        }    
+                    }
+                    
+                    byte[] messageReceived = ms.ToArray(); 
+                    
                     object ob = null;
 
                     switch (req.type)

@@ -1,5 +1,4 @@
 ﻿
-// A C# Program for Server 
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -94,7 +93,8 @@ namespace BotServer
 
                                     byte[] message = DataManager.Serialize(g);
                                     messageComplete = true;
-                                    // Send a message to Client  
+                                    Console.WriteLine("Message Serialized to {0} bytes. Sending to Client", message.Length);
+                                    // Send a message to Client 
                                     // using Send() method 
                                     clientSocket.Send(message);
                                     break;
@@ -109,7 +109,6 @@ namespace BotServer
                                     {
                                         t = Common.dbInterface.GetTournament(db, tourn_id);
                                     }
-
 
                                     //Send t to client
 

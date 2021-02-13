@@ -29,6 +29,9 @@ namespace TournamentBackend
         public long UID { get; set; }
         public long GuildID { get; set; } //Guild DB ID
         public int TypeID { get; set; }
+
+        public string Name { get; set; }
+
         [BsonIgnore]
         public TournamentType Type
         {
