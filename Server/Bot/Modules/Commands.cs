@@ -510,12 +510,12 @@ namespace BotServer.Modules
                     Common.dbInterface.UpdateTournamentInfo(db, t.info);
 
                     //Update new active tournamentID
-                    var collection = db.GetCollection<Tournament>("tournaments");
-                    List<Tournament> guild_tourneys = collection.Find(x=>x.info.GuildID == g.Id).ToList();
+                    var collection = db.GetCollection<TournamentInfo>("tournaments");
+                    List<TournamentInfo> guild_tourneys = collection.Find(x=>x.GuildID == g.Id).ToList();
 
                     if (guild_tourneys.Count > 0)
                     {
-                        g.ActiveTournamentID = guild_tourneys.Last().info.UID;
+                        g.ActiveTournamentID = guild_tourneys.Last().UID;
                         Common.dbInterface.UpdateGuild(db, g);
                     }
                 }

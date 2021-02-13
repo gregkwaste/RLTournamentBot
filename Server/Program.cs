@@ -43,8 +43,11 @@ namespace BotServer
             t.Start();
             
             bool exit = false;
-            while (!exit)
+            while (true)
             {
+                Thread.Sleep(10000); //Let the main thread sleep indefinitely the bot the main thread is forcefully terminated
+                
+                /*
                 Console.WriteLine("Type something");
                 string input = Console.ReadLine();
 
@@ -54,6 +57,7 @@ namespace BotServer
                         exit = true;
                         break;
                 }
+                */
             }
             
             t.Abort();
